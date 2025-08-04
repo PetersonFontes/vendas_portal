@@ -6,9 +6,6 @@
     <title>Simulador de Propostas Comerciais – SCC10 & SCC SBT</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- 
-      PASSO 1: COPIE E COLE O CÓDIGO ABAIXO NA ABA "CSS" DO RD STATION
-    -->
     <style>
         :root {
             --primary-color: #007bff; /* Azul SCC */
@@ -174,11 +171,6 @@
             box-sizing: border-box;
             resize: vertical;
         }
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
         .date-fields {
             display: flex;
             gap: 20px;
@@ -323,16 +315,6 @@
                 <p>Descreva o briefing do cliente no campo abaixo e a IA irá sugerir o melhor pacote de mídia.</p>
             </div>
             <div class="simulator-form">
-                <div class="simulator-step">
-                    <h4>Dados do Cliente (para geração de lead)</h4>
-                    <div class="input-grid">
-                        <input type="text" id="company-name" placeholder="Nome da Empresa *" required>
-                        <input type="text" id="client-name" placeholder="Nome do Cliente *" required>
-                        <input type="email" id="client-email" placeholder="E-mail *" required>
-                        <input type="tel" id="client-phone" placeholder="Telefone *" required>
-                    </div>
-                </div>
-
                 <div class="simulator-step" id="step-briefing">
                     <h4>Briefing do Cliente</h4>
                     <textarea id="briefing-input" rows="8" placeholder="Ex: O cliente é uma construtora de alto padrão em Florianópolis. Eles estão lançando um novo empreendimento e precisam gerar reconhecimento de marca (branding) e captar leads qualificados. O orçamento estimado é de R$ 15.000 e eles têm urgência para começar, pois o evento de lançamento é no próximo mês. O decisor é o diretor de marketing."></textarea>
@@ -460,6 +442,11 @@
     -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // --- INÍCIO DA CONFIGURAÇÃO ---
+            // IMPORTANTE: Substitua "SUA_CHAVE_API_AQUI" pela sua chave da API do Google AI Studio.
+            const apiKey = "SUA_CHAVE_API_AQUI"; 
+            // --- FIM DA CONFIGURAÇÃO ---
+
             // Simulador de Proposta
             const generateBtn = document.getElementById('generate-proposal-btn');
             const resultDiv = document.getElementById('proposal-result');
@@ -467,10 +454,6 @@
             const campaignStartDateInput = document.getElementById('campaign-start-date');
             const campaignEndDateInput = document.getElementById('campaign-end-date');
             const openProposalLink = document.getElementById('open-proposal-link');
-            const companyNameInput = document.getElementById('company-name');
-            const clientNameInput = document.getElementById('client-name');
-            const clientEmailInput = document.getElementById('client-email');
-            const clientPhoneInput = document.getElementById('client-phone');
             let lastProposalContent = '';
 
             // Gerador de Criativos
@@ -484,7 +467,9 @@
             generateCreativeBtn.addEventListener('click', generateCreative);
 
             async function callGeminiAPI(prompt) {
-                const apiKey = ""; // Será injetada pelo ambiente
+                if (apiKey === "SUA_CHAVE_API_AQUI" || !apiKey) {
+                    throw new Error("A chave da API (API Key) não foi configurada no código JavaScript.");
+                }
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
@@ -495,7 +480,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
+                    throw new Error(`Erro na API: ${response.status} ${response.statusText}. Verifique se sua chave de API é válida e está habilitada.`);
                 }
 
                 const data = await response.json();
@@ -516,45 +501,27 @@
                 const briefing = briefingInput.value.trim();
                 const startDate = campaignStartDateInput.value;
                 const endDate = campaignEndDateInput.value;
-                const companyName = companyNameInput.value.trim();
-                const clientName = clientNameInput.value.trim();
-                const clientEmail = clientEmailInput.value.trim();
-                const clientPhone = clientPhoneInput.value.trim();
 
-                if (!companyName || !clientName || !clientEmail || !clientPhone || !briefing || !startDate || !endDate) {
-                    alert("Por favor, preencha todos os campos obrigatórios para gerar a proposta.");
+                if (!briefing || !startDate || !endDate) {
+                    alert("Por favor, preencha o briefing e as datas da campanha.");
                     return;
                 }
-                
-                // Simulação do envio de lead para o Google Sheets
-                console.log("--- SIMULANDO ENVIO DE LEAD ---");
-                console.log("Empresa:", companyName);
-                console.log("Cliente:", clientName);
-                console.log("Email:", clientEmail);
-                console.log("Telefone:", clientPhone);
-                console.log("---------------------------------");
-
 
                 generateBtn.innerHTML = 'Analisando... <div class="spinner"></div>';
                 generateBtn.disabled = true;
 
                 const prompt = `
-                    Aja como um especialista sênior em mídia e vendas do Grupo SCC SBT. Sua tarefa é analisar um briefing de cliente e criar uma recomendação de pacote de mídia detalhada.
+                    Aja como um especialista sênior em mídia e vendas do Grupo SCC SBT. Sua tarefa é analisar um briefing de cliente, simular dados de audiência e inventário, e criar uma recomendação de pacote de mídia detalhada.
 
                     **Fonte da Verdade - Dados de Audiência (Base: IVC Junho 2025):**
                     - **Page Impressions Mensais:** 1.082.453
                     - **Usuários Únicos (Unique Browsers) Mensais:** 408.870
-
                     **Contexto do Mídia Kit (resumido):**
                     - **Pacote PBLI 1 (R$ 2.500):** 1 Publieditorial, 1 conteúdo, 150 mil impressões, 4 posts.
                     - **Pacote CBRA (Canal Branded) (R$ 21.000):** 30 dias, 10 publieditoriais, 10 conteúdos, 500 mil impressões, 2 vídeos no YouTube, 40 posts.
-
                     **Dados do Cliente:**
-                    - **Empresa:** ${companyName}
-                    - **Cliente:** ${clientName}
                     - **Briefing:** "${briefing}"
                     - **Período da Campanha:** De ${startDate} até ${endDate}
-
                     **Sua Tarefa:**
                     1.  **Análise de Audiência e Inventário (Simulado):** Crie uma seção "Análise de Audiência e Inventário (Fonte: IVC)" com estimativas de Pageviews e Usuários Únicos para o período solicitado e uma análise de inventário.
                     2.  **Recomendação de Mídia:** Recomende UM pacote principal.
@@ -562,13 +529,12 @@
                     4.  **Justificativa Estratégica:** Justifique a escolha em 2-3 linhas.
                     5.  **Investimento e Retorno:** Apresente o investimento e uma estimativa de retorno.
                     6.  **Observações e Normas:** Adicione a seção "Observações Importantes e Normas Comerciais" no final.
-                    7.  **Formato:** Formate a resposta em HTML. Use <p>, <strong>, <h2>, <h3> e <ul>/<li>.
-                `;
+                    7.  **Formato:** Formate a resposta em HTML com <p>, <strong>, <h2>, <h3> e <ul>/<li>.`;
 
                 try {
                     const aiResponse = await callGeminiAPI(prompt);
                     lastProposalContent = aiResponse;
-                    openProposalInNewWindow(aiResponse, companyName);
+                    openProposalInNewWindow(aiResponse, "Cliente");
                     resultDiv.style.display = 'block';
                 } catch (error) {
                     alert(`Ocorreu um erro ao gerar a proposta: ${error.message}`);
@@ -657,10 +623,6 @@
                 briefingInput.value = '';
                 campaignStartDateInput.value = '';
                 campaignEndDateInput.value = '';
-                companyNameInput.value = '';
-                clientNameInput.value = '';
-                clientEmailInput.value = '';
-                clientPhoneInput.value = '';
                 resultDiv.style.display = 'none';
                 return false;
             }
