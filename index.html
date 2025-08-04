@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Propostas Comerciais – SCC10 & SCC SBT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 
+      PASSO 1: COPIE E COLE O CÓDIGO ABAIXO NA ABA "CSS" DO RD STATION
+    -->
+    <style>
+        :root {
+            --primary-color: #007bff; /* Azul SCC */
+            --secondary-color: #6c757d; /* Cinza para textos secundários */
+            --background-color: #f8f9fa; /* Fundo claro */
+            --text-color: #343a40; /* Texto principal */
+            --card-bg: #ffffff; /* Fundo dos cards */
+            --header-bg: #eaf4ff; /* Azul claro para o header */
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            scroll-behavior: smooth;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 20px;
+            background-color: var(--header-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .nav-menu a:hover {
+            color: var(--primary-color);
+        }
+        .btn-cta {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-cta:hover {
+            background-color: #0056b3;
+        }
+        .hero {
+            text-align: center;
+            padding: 150px 0 80px;
+            background: #fff;
+        }
+        .hero .badge {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 20px 0 10px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--secondary-color);
+        }
+        .hero .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .hero .cta-buttons .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        .section {
+            padding: 80px 0;
+        }
+        .section-title {
+            text-align: center;
+        }
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .section-title p {
+             max-width: 700px;
+             margin: 0 auto 50px auto;
+             color: var(--secondary-color);
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .feature-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+        .simulator {
+            background-color: var(--card-bg);
+        }
+        .simulator-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .simulator-step {
+            margin-bottom: 20px;
+        }
+        .simulator-step h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .simulator-step textarea, .simulator-step input {
+            width: 100%;
+            padding: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .date-fields {
+            display: flex;
+            gap: 20px;
+        }
+        .date-fields > div {
+            flex: 1;
+        }
+        #proposal-result, #creative-result {
+            margin-top: 20px;
+            padding: 30px;
+            border-radius: 10px;
+            background-color: var(--background-color);
+            border: 1px solid #dee2e6;
+            display: none;
+        }
+        #proposal-result h3, #creative-result h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .proposal-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: #fff;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .faq-item {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .faq-item h4 {
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-item .faq-content {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: none;
+            color: var(--secondary-color);
+        }
+        .faq-content ul {
+            padding-left: 20px;
+            text-align: left;
+        }
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            background-color: var(--text-color);
+            color: #fff;
+        }
+        .footer .social-icons {
+            margin-top: 20px;
+        }
+        .footer .social-icons a {
+            color: #fff;
+            margin: 0 10px;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- #0. Barra de Navegação (Fixa) -->
+    <nav class="navbar">
+        <a href="#home" class="navbar-brand">
+            <img src="https://scc10.com.br/wp-content/uploads/2023/04/logo-scc10-544x180-1.png" alt="Logo Portal SCC10">
+        </a>
+        <ul class="nav-menu">
+            <li><a href="#funcionalidades">Funcionalidades</a></li>
+            <li><a href="#simulador">Simulador</a></li>
+            <li><a href="#faq">Dúvidas</a></li>
+        </ul>
+        <a href="#simulador" class="btn-cta">Simular Agora</a>
+    </nav>
+
+    <!-- #1. Hero -->
+    <header class="hero" id="home">
+        <div class="container">
+            <span class="badge">Ferramenta Exclusiva para Vendas Digitais – 2025</span>
+            <h1>Crie a proposta perfeita em segundos com inteligência artificial</h1>
+            <p>Aumente sua conversão com pacotes personalizados usando os dados do SCC10 e SCC SBT</p>
+            <div class="cta-buttons">
+                <a href="#simulador" class="btn-cta">Simular Proposta</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- #3. Funcionalidades -->
+    <section class="section" id="funcionalidades">
+        <div class="container section-title">
+            <h2>Funcionalidades</h2>
+            <div class="grid-container">
+                <div class="feature-card">
+                    <h3>📊 Simulação Inteligente com IA</h3>
+                    <p>Input de briefing em texto livre para uma proposta sob medida.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📁 Propostas em PDF</h3>
+                    <p>Geração automática de propostas com a identidade visual do SCC.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🧠 Recomendação Automática</h3>
+                    <p>Sugestão de formatos com base no budget e objetivo do cliente.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📌 Sugestão de Canais</h3>
+                    <p>Indicação dos melhores canais (portal, social, YouTube, branded content).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- #6. Simulador com IA -->
+    <section class="simulator section" id="simulador">
+        <div class="container">
+            <div class="section-title">
+                <h2>Simulador de Propostas com IA</h2>
+                <p>Descreva o briefing do cliente no campo abaixo e a IA irá sugerir o melhor pacote de mídia.</p>
+            </div>
+            <div class="simulator-form">
+                <div class="simulator-step">
+                    <h4>Dados do Cliente (para geração de lead)</h4>
+                    <div class="input-grid">
+                        <input type="text" id="company-name" placeholder="Nome da Empresa *" required>
+                        <input type="text" id="client-name" placeholder="Nome do Cliente *" required>
+                        <input type="email" id="client-email" placeholder="E-mail *" required>
+                        <input type="tel" id="client-phone" placeholder="Telefone *" required>
+                    </div>
+                </div>
+
+                <div class="simulator-step" id="step-briefing">
+                    <h4>Briefing do Cliente</h4>
+                    <textarea id="briefing-input" rows="8" placeholder="Ex: O cliente é uma construtora de alto padrão em Florianópolis. Eles estão lançando um novo empreendimento e precisam gerar reconhecimento de marca (branding) e captar leads qualificados. O orçamento estimado é de R$ 15.000 e eles têm urgência para começar, pois o evento de lançamento é no próximo mês. O decisor é o diretor de marketing."></textarea>
+                </div>
+                 <div class="simulator-step">
+                    <h4>Período da Campanha</h4>
+                    <div class="date-fields">
+                        <div>
+                            <label for="campaign-start-date">Previsão de Início:</label>
+                            <input type="date" id="campaign-start-date">
+                        </div>
+                        <div>
+                            <label for="campaign-end-date">Previsão de Fim:</label>
+                            <input type="date" id="campaign-end-date">
+                        </div>
+                    </div>
+                </div>
+                <button id="generate-proposal-btn" class="btn-cta" style="width: 100%; padding: 15px; font-size: 1.2rem; margin-top: 20px;">Analisar Briefing e Gerar Proposta</button>
+                <div id="proposal-result">
+                    <h3>Proposta Gerada com Sucesso!</h3>
+                    <p>Sua proposta foi aberta em uma nova aba. Se a aba não abriu, clique no botão abaixo para visualizá-la.</p>
+                    <div class="proposal-actions">
+                         <a id="open-proposal-link" href="#" target="_blank" class="btn-cta">Reabrir Proposta</a>
+                         <a href="#" onclick="resetSimulator()" class="btn-cta btn-secondary" style="background-color: var(--secondary-color);">Analisar Outro Briefing</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ✨ Nova Ferramenta: Gerador de Criativos -->
+    <section class="section" id="creative-generator" style="background-color: var(--card-bg);">
+        <div class="container">
+            <div class="section-title">
+                <h2>✨ Ferramenta Bônus: Gerador de Criativos com IA</h2>
+                <p>Após gerar a proposta, use a IA para criar um título e texto para o anúncio do seu cliente.</p>
+            </div>
+            <div class="simulator-form">
+                <div class="simulator-step">
+                    <h4>Produto/Serviço do Cliente</h4>
+                    <textarea id="creative-product-input" rows="3" placeholder="Ex: Lançamento do residencial de luxo 'Vista do Mar' em Jurerê Internacional."></textarea>
+                </div>
+                <div class="simulator-step">
+                    <h4>Pacote de Mídia Recomendado</h4>
+                    <input type="text" id="creative-package-input" placeholder="Ex: Pacote CBRA (Canal Branded)">
+                </div>
+                <button id="generate-creative-btn" class="btn-cta" style="width: 100%; padding: 15px; font-size: 1.2rem;">Gerar Criativo</button>
+                <div id="creative-result">
+                    <h3>Sugestão de Criativo</h3>
+                    <div id="creative-content"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- #7. CTA Final -->
+    <section class="section" id="cta-final">
+        <div class="container" style="text-align: center;">
+            <h2>Vamos turbinar suas vendas agora?</h2>
+            <div class="cta-buttons" style="margin-top: 20px;">
+                <a href="#simulador" class="btn-cta">Começar simulação</a>
+                <a href="https://wa.me/5548999591717" target="_blank" class="btn-cta btn-secondary">Falar com especialista</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- #8. FAQ -->
+    <section class="section" id="faq" style="background-color: var(--card-bg);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Dúvidas Frequentes</h2>
+            </div>
+            <div class="faq-list" style="max-width: 700px; margin: 0 auto;">
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <h4>Quais formatos e dimensões estão disponíveis?<span>+</span></h4>
+                    <div class="faq-content">
+                        <p>A ferramenta considera todos os formatos do mídia kit. Os principais são:</p>
+                        <ul>
+                            <li><strong>Billboard:</strong> Desktop: 970x250px | Mobile: 320x100px</li>
+                            <li><strong>Half Page:</strong> Desktop/Mobile: 300x600px</li>
+                            <li><strong>Retângulo Médio:</strong> Desktop/Mobile: 300x250px</li>
+                            <li><strong>Parallax:</strong> Desktop: 1280x900px | Mobile: 300x600px</li>
+                            <li><strong>Anchor:</strong> Desktop: 970x90px | Mobile: 320x50px</li>
+                            <li><strong>Vídeo Outstream:</strong> 300x250px / 970x250px</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <h4>Posso editar a proposta depois?<span>+</span></h4>
+                    <div class="faq-content">
+                        <p>A proposta gerada é uma sugestão estratégica. Você pode editá-la e personalizá-la antes de exportar o PDF final para o cliente.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <h4>Como a IA entende meu cliente?<span>+</span></h4>
+                    <div class="faq-content">
+                        <p>A IA foi treinada para interpretar o briefing em texto, identificar os elementos-chave (como orçamento, necessidade e prazo) e cruzar com os pacotes do mídia kit.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <h4>A proposta gerada é vinculante?<span>+</span></h4>
+                    <div class="faq-content">
+                        <p>Não, a proposta é uma estimativa inteligente. Para validar os valores e fechar o negócio, é necessário o contato com o time comercial do SCC.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- #9. Rodapé -->
+    <footer class="footer">
+        <div class="container">
+            <p>Grupo SCC © 2025</p>
+            <div class="social-icons">
+                <a href="#">LinkedIn</a>
+                <a href="#">Instagram</a>
+                <a href="#">Facebook</a>
+                <a href="#">Twitter</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 
+      PASSO 2: COPIE E COLE O CÓDIGO ABAIXO NA ABA "JAVASCRIPT EM BODY" DO RD STATION
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulador de Proposta
+            const generateBtn = document.getElementById('generate-proposal-btn');
+            const resultDiv = document.getElementById('proposal-result');
+            const briefingInput = document.getElementById('briefing-input');
+            const campaignStartDateInput = document.getElementById('campaign-start-date');
+            const campaignEndDateInput = document.getElementById('campaign-end-date');
+            const openProposalLink = document.getElementById('open-proposal-link');
+            const companyNameInput = document.getElementById('company-name');
+            const clientNameInput = document.getElementById('client-name');
+            const clientEmailInput = document.getElementById('client-email');
+            const clientPhoneInput = document.getElementById('client-phone');
+            let lastProposalContent = '';
+
+            // Gerador de Criativos
+            const generateCreativeBtn = document.getElementById('generate-creative-btn');
+            const creativeResultDiv = document.getElementById('creative-result');
+            const creativeContent = document.getElementById('creative-content');
+            const creativeProductInput = document.getElementById('creative-product-input');
+            const creativePackageInput = document.getElementById('creative-package-input');
+
+            generateBtn.addEventListener('click', generateProposal);
+            generateCreativeBtn.addEventListener('click', generateCreative);
+
+            async function callGeminiAPI(prompt) {
+                const apiKey = ""; // Será injetada pelo ambiente
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    console.error("Resposta da API inválida ou bloqueada:", data);
+                    let errorMessage = "A IA não conseguiu gerar uma resposta. Isso pode ocorrer por políticas de segurança.";
+                    if (data.promptFeedback && data.promptFeedback.blockReason) {
+                        errorMessage += ` (Motivo: ${data.promptFeedback.blockReason})`;
+                    }
+                    throw new Error(errorMessage);
+                }
+            }
+
+            async function generateProposal() {
+                const briefing = briefingInput.value.trim();
+                const startDate = campaignStartDateInput.value;
+                const endDate = campaignEndDateInput.value;
+                const companyName = companyNameInput.value.trim();
+                const clientName = clientNameInput.value.trim();
+                const clientEmail = clientEmailInput.value.trim();
+                const clientPhone = clientPhoneInput.value.trim();
+
+                if (!companyName || !clientName || !clientEmail || !clientPhone || !briefing || !startDate || !endDate) {
+                    alert("Por favor, preencha todos os campos obrigatórios para gerar a proposta.");
+                    return;
+                }
+                
+                // Simulação do envio de lead para o Google Sheets
+                console.log("--- SIMULANDO ENVIO DE LEAD ---");
+                console.log("Empresa:", companyName);
+                console.log("Cliente:", clientName);
+                console.log("Email:", clientEmail);
+                console.log("Telefone:", clientPhone);
+                console.log("---------------------------------");
+
+
+                generateBtn.innerHTML = 'Analisando... <div class="spinner"></div>';
+                generateBtn.disabled = true;
+
+                const prompt = `
+                    Aja como um especialista sênior em mídia e vendas do Grupo SCC SBT. Sua tarefa é analisar um briefing de cliente e criar uma recomendação de pacote de mídia detalhada.
+
+                    **Fonte da Verdade - Dados de Audiência (Base: IVC Junho 2025):**
+                    - **Page Impressions Mensais:** 1.082.453
+                    - **Usuários Únicos (Unique Browsers) Mensais:** 408.870
+
+                    **Contexto do Mídia Kit (resumido):**
+                    - **Pacote PBLI 1 (R$ 2.500):** 1 Publieditorial, 1 conteúdo, 150 mil impressões, 4 posts.
+                    - **Pacote CBRA (Canal Branded) (R$ 21.000):** 30 dias, 10 publieditoriais, 10 conteúdos, 500 mil impressões, 2 vídeos no YouTube, 40 posts.
+
+                    **Dados do Cliente:**
+                    - **Empresa:** ${companyName}
+                    - **Cliente:** ${clientName}
+                    - **Briefing:** "${briefing}"
+                    - **Período da Campanha:** De ${startDate} até ${endDate}
+
+                    **Sua Tarefa:**
+                    1.  **Análise de Audiência e Inventário (Simulado):** Crie uma seção "Análise de Audiência e Inventário (Fonte: IVC)" com estimativas de Pageviews e Usuários Únicos para o período solicitado e uma análise de inventário.
+                    2.  **Recomendação de Mídia:** Recomende UM pacote principal.
+                    3.  **Descrição do Pacote:** Descreva TUDO o que está incluso no pacote.
+                    4.  **Justificativa Estratégica:** Justifique a escolha em 2-3 linhas.
+                    5.  **Investimento e Retorno:** Apresente o investimento e uma estimativa de retorno.
+                    6.  **Observações e Normas:** Adicione a seção "Observações Importantes e Normas Comerciais" no final.
+                    7.  **Formato:** Formate a resposta em HTML. Use <p>, <strong>, <h2>, <h3> e <ul>/<li>.
+                `;
+
+                try {
+                    const aiResponse = await callGeminiAPI(prompt);
+                    lastProposalContent = aiResponse;
+                    openProposalInNewWindow(aiResponse, companyName);
+                    resultDiv.style.display = 'block';
+                } catch (error) {
+                    alert(`Ocorreu um erro ao gerar a proposta: ${error.message}`);
+                } finally {
+                    generateBtn.innerHTML = 'Analisar Briefing e Gerar Proposta';
+                    generateBtn.disabled = false;
+                }
+            }
+            
+            async function generateCreative() {
+                const product = creativeProductInput.value.trim();
+                const mediaPackage = creativePackageInput.value.trim();
+                if (!product || !mediaPackage) {
+                    alert("Por favor, preencha os campos de produto e pacote de mídia.");
+                    return;
+                }
+
+                generateCreativeBtn.innerHTML = 'Gerando... <div class="spinner"></div>';
+                generateCreativeBtn.disabled = true;
+                creativeResultDiv.style.display = 'block';
+                creativeContent.innerHTML = '<p>Criando um anúncio persuasivo...</p>';
+
+                const prompt = `
+                    Aja como um redator publicitário (copywriter) sênior do Grupo SCC SBT.
+                    **Tarefa:** Crie um criativo para uma campanha de publicidade.
+                    **Produto/Serviço do Cliente:** "${product}"
+                    **Pacote/Formato de Mídia:** "${mediaPackage}"
+                    **Instruções:**
+                    1. Gere um **Título Chamativo** (máximo 10 palavras).
+                    2. Gere um **Texto para o Anúncio** (máximo 50 palavras), que seja persuasivo e termine com uma chamada para ação (CTA) clara.
+                    3. Formate a resposta em HTML, usando <h4> para os títulos e <p> para o conteúdo.`;
+
+                try {
+                    const aiResponse = await callGeminiAPI(prompt);
+                    creativeContent.innerHTML = aiResponse;
+                } catch (error) {
+                    creativeContent.innerHTML = `<p>Ocorreu um erro ao gerar o criativo: ${error.message}</p>`;
+                } finally {
+                    generateCreativeBtn.innerHTML = 'Gerar Criativo';
+                    generateCreativeBtn.disabled = false;
+                    creativeResultDiv.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            function openProposalInNewWindow(content, companyName) {
+                const proposalWindow = window.open('', '_blank');
+                const htmlContent = `
+                    <html>
+                        <head>
+                            <title>Proposta Comercial para ${companyName} - SCC</title>
+                            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                            <style>
+                                body { font-family: 'Poppins', sans-serif; margin: 0; padding: 2rem; color: #343a40; }
+                                .container { max-width: 800px; margin: 0 auto; }
+                                .header { text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 1rem; margin-bottom: 2rem; }
+                                .header img { height: 50px; }
+                                h1, h2, h3 { color: #007bff; }
+                                h2 { border-top: 1px solid #ccc; padding-top: 1.5rem; margin-top: 2rem;}
+                                strong { color: #343a40; }
+                                ul { list-style-type: none; padding-left: 0; }
+                                li { background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid #007bff; }
+                                .print-button { display: block; width: 200px; margin: 2rem auto; padding: 1rem; background-color: #007bff; color: #fff; text-align: center; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; }
+                                @media print { .print-button { display: none; } }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <div class="header">
+                                    <img src="https://scc10.com.br/wp-content/uploads/2023/04/logo-scc10-544x180-1.png" alt="Logo SCC10">
+                                    <h1>Proposta Comercial Personalizada</h1>
+                                </div>
+                                ${content}
+                                <button class="print-button" onclick="window.print()">Imprimir / Salvar como PDF</button>
+                            </div>
+                        </body>
+                    </html>
+                `;
+                proposalWindow.document.write(htmlContent);
+                proposalWindow.document.close();
+                
+                const dataUrl = 'data:text/html;charset=UTF-8,' + encodeURIComponent(htmlContent);
+                document.getElementById('open-proposal-link').href = dataUrl;
+            }
+
+            window.resetSimulator = function() {
+                briefingInput.value = '';
+                campaignStartDateInput.value = '';
+                campaignEndDateInput.value = '';
+                companyNameInput.value = '';
+                clientNameInput.value = '';
+                clientEmailInput.value = '';
+                clientPhoneInput.value = '';
+                resultDiv.style.display = 'none';
+                return false;
+            }
+
+            window.toggleFaq = function(item) {
+                const answer = item.querySelector('.faq-content');
+                const icon = item.querySelector('span');
+                const isVisible = answer.style.display === 'block';
+
+                document.querySelectorAll('.faq-item .faq-content').forEach(p => p.style.display = 'none');
+                document.querySelectorAll('.faq-item span').forEach(s => s.innerText = '+');
+
+                if (!isVisible) {
+                    answer.style.display = 'block';
+                    icon.innerText = '-';
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
